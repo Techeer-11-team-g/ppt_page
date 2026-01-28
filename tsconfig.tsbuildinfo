@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/components/landingpage.tsx","./src/utils/cn.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/agentorb.tsx","./src/components/landingpage.tsx","./src/components/magneticinput.tsx","./src/motion/index.ts","./src/utils/cn.ts"],"version":"5.9.3"}
