@@ -135,12 +135,8 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <JellySection><QuestionSection /></JellySection>
         <JellySection><BrandRevealSection /></JellySection>
         <JellySection><VideoHeroSection /></JellySection>
-        {/* 5단계 워크플로우 - 각 스텝별 슬라이드 */}
-        <JellySection><StepSlide step={WORKFLOW_STEPS[0]} index={0} /></JellySection>
-        <JellySection><StepSlide step={WORKFLOW_STEPS[1]} index={1} /></JellySection>
-        <JellySection><StepSlide step={WORKFLOW_STEPS[2]} index={2} /></JellySection>
-        <JellySection><StepSlide step={WORKFLOW_STEPS[3]} index={3} /></JellySection>
-        <JellySection><StepSlide step={WORKFLOW_STEPS[4]} index={4} /></JellySection>
+        {/* 5단계 워크플로우 - 하나의 슬라이드에 모두 표시 */}
+        <JellySection><WorkflowStepsSection /></JellySection>
         <JellySection><GetStartedSection onEnter={handleEnter} /></JellySection>
         <JellySection><DemoSection /></JellySection>
         <JellySection><AgentIntroSection /></JellySection>
@@ -791,7 +787,72 @@ const STEP_IMAGES = [
 ];
 
 // =============================================
-// Step Slide - 개별 스텝 슬라이드 (심플하게)
+// Combined Workflow Steps Section - 모든 스텝을 하나의 슬라이드에
+// =============================================
+function WorkflowStepsSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+
+  return (
+    <section ref={sectionRef} className="flex h-screen items-center justify-center px-6">
+      <div className="w-full max-w-6xl">
+        {/* Title */}
+        <motion.h2
+          className="mb-12 text-center text-3xl font-semibold text-white md:text-4xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
+          transition={{ duration: 0.6 }}
+        >
+          파편화된 패션 경험을 하나로!
+        </motion.h2>
+
+        {/* Steps Grid */}
+        <div className="grid grid-cols-5 gap-4 md:gap-6">
+          {WORKFLOW_STEPS.map((step, index) => (
+            <motion.div
+              key={step.number}
+              className="flex flex-col items-center text-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{
+                opacity: isInView ? 1 : 0,
+                y: isInView ? 0 : 30
+              }}
+              transition={{
+                duration: 0.6,
+                delay: isInView ? 0.3 + index * 0.2 : 0,
+                ease: [0.16, 1, 0.3, 1]
+              }}
+            >
+              {/* Image */}
+              <div className="mb-4 w-full overflow-hidden rounded-xl border border-white/10">
+                <img
+                  src={STEP_IMAGES[index]}
+                  alt={step.title}
+                  className="aspect-[3/4] w-full object-cover"
+                />
+              </div>
+
+              {/* Icon + Number */}
+              <div className="mb-2 flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5">
+                  <step.icon className="h-5 w-5 text-white/70" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm font-medium text-white/40">{step.number}</span>
+              </div>
+
+              {/* Title */}
+              <p className="text-lg font-semibold text-white md:text-xl">{step.title}</p>
+              <p className="text-sm text-white/40">{step.titleEn}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// =============================================
+// Step Slide - 개별 스텝 슬라이드 (심플하게) - 더 이상 사용 안함
 // =============================================
 function StepSlide({ step, index }: { step: typeof WORKFLOW_STEPS[0]; index: number }) {
   return (
@@ -926,41 +987,26 @@ function GetStartedSection({ onEnter }: { onEnter: () => void }) {
 // =============================================
 function DemoSection() {
   return (
-    <section className="relative flex h-screen items-center justify-center bg-black px-6">
+    <section className="relative flex h-screen items-center justify-center bg-black">
+      {/* Phone Mockup - 크게 중앙 배치 */}
       <motion.div
-        className="flex flex-col items-center text-center"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        className="relative h-[650px] w-[320px] rounded-[3rem] border-2 border-white/15 bg-white/[0.03] p-3 md:h-[750px] md:w-[370px]"
+        initial={{ opacity: 0, scale: 0.9 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        {/* Section Header */}
-        <motion.p
-          className="mb-4 text-lg uppercase tracking-[0.3em] text-white/40"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          Live Demo
-        </motion.p>
-        <h2 className="mb-12 text-[clamp(2rem,5vw,4rem)] font-semibold text-white">
-          실시간 시연
-        </h2>
-
-        {/* Single Phone Mockup - 크게 */}
-        <motion.div
-          className="relative h-[500px] w-[250px] rounded-[3rem] border-2 border-white/15 bg-white/[0.03] p-3 md:h-[600px] md:w-[300px]"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          <div className="absolute left-1/2 top-3 z-10 h-5 w-16 -translate-x-1/2 rounded-full bg-black/60" />
-          <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[2.2rem] bg-neutral-900">
-            <span className="text-base text-white/30">시연 화면</span>
-          </div>
-        </motion.div>
+        <div className="absolute left-1/2 top-3 z-10 h-6 w-20 -translate-x-1/2 rounded-full bg-black/60" />
+        <div className="h-full w-full overflow-hidden rounded-[2.2rem] bg-neutral-900">
+          <video
+            autoPlay
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          >
+            <source src="/시연영상.mp4" type="video/mp4" />
+          </video>
+        </div>
       </motion.div>
     </section>
   );
