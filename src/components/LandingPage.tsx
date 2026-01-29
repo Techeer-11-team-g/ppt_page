@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useEffect, createContext, useContext } from 'react';
-import { motion, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { AgentOrb } from './AgentOrb';
 import { TrendingUp, Search, ShoppingBag, Upload, Scan, Sparkles, Eye, Link2 } from 'lucide-react';
 
@@ -12,35 +12,10 @@ export interface LandingPageProps {
 }
 
 // =============================================
-// Scroll Container Context
-// =============================================
-const ScrollContainerContext = createContext<React.RefObject<HTMLDivElement> | null>(null);
-
-// =============================================
-// Jelly Section Wrapper - 젤리처럼 탄성있는 페이지 전환
+// Section Wrapper - 뚝뚝 끊기는 전환, 전환 후 애니메이션 시작
 // =============================================
 function JellySection({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const containerRef = useContext(ScrollContainerContext);
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    container: containerRef || undefined,
-    offset: ['start end', 'end start'],
-  });
-
-  // 스프링 설정 - 젤리같은 탄성
-  const springConfig = { stiffness: 80, damping: 15, mass: 0.8 };
-
-  // 스크롤 진행에 따른 변환
-  const rawScale = useTransform(scrollYProgress, [0, 0.35, 0.5, 0.65, 1], [0.88, 0.96, 1, 0.96, 0.88]);
-  const rawY = useTransform(scrollYProgress, [0, 0.35, 0.5, 0.65, 1], [80, 20, 0, -20, -80]);
-  const rawOpacity = useTransform(scrollYProgress, [0, 0.3, 0.5, 0.7, 1], [0.4, 0.9, 1, 0.9, 0.4]);
-
-  // 스프링으로 부드럽게 (더 탄성있게)
-  const scale = useSpring(rawScale, springConfig);
-  const y = useSpring(rawY, springConfig);
-  const opacity = useSpring(rawOpacity, springConfig);
 
   return (
     <div
@@ -48,12 +23,9 @@ function JellySection({ children }: { children: React.ReactNode }) {
       data-section
       className="h-screen flex-shrink-0 snap-start snap-always"
     >
-      <motion.div
-        className="h-full w-full origin-center"
-        style={{ scale, y, opacity }}
-      >
+      <div className="h-full w-full">
         {children}
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -78,7 +50,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
     currentSection.current = index;
     container.scrollTo({
       top: sections[index].offsetTop,
-      behavior: 'smooth',
+      behavior: 'instant',
     });
     setTimeout(() => { isScrolling.current = false; }, 1000);
   }, []);
@@ -121,31 +93,29 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   }, [scrollToSection]);
 
   return (
-    <ScrollContainerContext.Provider value={containerRef}>
-      <div
-        ref={containerRef}
-        className="relative h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden bg-black text-white"
-        style={{ scrollBehavior: 'smooth', perspective: '1000px' }}
-      >
-        <JellySection><IntroStorySection /></JellySection>
-        <JellySection><ProblemSection /></JellySection>
-        <JellySection><InstagramFeedSection /></JellySection>
-        <JellySection><TransitionSection /></JellySection>
-        <JellySection><BrokenChainSection /></JellySection>
-        <JellySection><QuestionSection /></JellySection>
-        <JellySection><BrandRevealSection /></JellySection>
-        <JellySection><VideoHeroSection /></JellySection>
-        {/* 5단계 워크플로우 - 하나의 슬라이드에 모두 표시 */}
-        <JellySection><WorkflowStepsSection /></JellySection>
-        <JellySection><GetStartedSection onEnter={handleEnter} /></JellySection>
-        <JellySection><DemoSection /></JellySection>
-        <JellySection><AgentIntroSection /></JellySection>
-        <JellySection><FullPipelineSection /></JellySection>
-        <JellySection><DressenseVideoSection /></JellySection>
-        <JellySection><TeamSection /></JellySection>
-        <JellySection><Footer /></JellySection>
-      </div>
-    </ScrollContainerContext.Provider>
+    <div
+      ref={containerRef}
+      className="relative h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden bg-black text-white"
+      style={{ scrollBehavior: 'auto' }}
+    >
+      <JellySection><IntroStorySection /></JellySection>
+      <JellySection><ProblemSection /></JellySection>
+      <JellySection><InstagramFeedSection /></JellySection>
+      <JellySection><TransitionSection /></JellySection>
+      <JellySection><BrokenChainSection /></JellySection>
+      <JellySection><QuestionSection /></JellySection>
+      <JellySection><BrandRevealSection /></JellySection>
+      <JellySection><VideoHeroSection /></JellySection>
+      {/* 5단계 워크플로우 - 하나의 슬라이드에 모두 표시 */}
+      <JellySection><WorkflowStepsSection /></JellySection>
+      <JellySection><GetStartedSection onEnter={handleEnter} /></JellySection>
+      <JellySection><DemoSection /></JellySection>
+      <JellySection><AgentIntroSection /></JellySection>
+      <JellySection><FullPipelineSection /></JellySection>
+      <JellySection><DressenseVideoSection /></JellySection>
+      <JellySection><TeamSection /></JellySection>
+      <JellySection><Footer /></JellySection>
+    </div>
   );
 }
 
